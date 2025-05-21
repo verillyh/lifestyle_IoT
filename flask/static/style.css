@@ -1,0 +1,55 @@
+body {
+    font-family: Arial, sans-serif;
+    background: #f3f3f3;
+    text-align: center;
+}
+
+h1 {
+    margin-top: 40px;
+}
+
+.center-box {
+    display: inline-block;
+    margin-top: 20px;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+}
+
+table {
+    margin: 0 auto;
+    border-collapse: collapse;
+    width: 600px;
+}
+
+th, td {
+    padding: 10px;
+    border: 1px solid #999;
+}
+
+.status-box {
+    margin-top: 20px;
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
+}
+
+.btn {
+    padding: 10px 20px;
+    margin-top: 10px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.lock {
+    background: #d9534f;
+    color: white;
+    border: none;
+}
+
+.unlock {
+    background: #5cb85c;
+    color: white;
+    border: none;
+}
