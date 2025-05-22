@@ -2,11 +2,18 @@ from flask import Flask, render_template, request, redirect
 import mysql.connector
 import os
 import threading
+import serial
 
 app = Flask(__name__)
-
 status_file = "lock_status.txt"
-lock_timer = None  # Global timer for auto-relock
+lock_timer = None
+
+# Setup serial connection to Arduino
+try:
+    arduino = serial.Serial('/dev/ttyACM0', 9600, timeout=1)
+except:
+    arduino = None
+    print("[WARNING] Arduino not connected")
 
 def get_status():
     if not os.path.exists(status_file):
@@ -20,9 +27,15 @@ def set_status(new_status):
 
 def auto_relock():
     set_status("Locked")
+    send_to_arduino("LOCK\n")
     print("[AUTO-RELOCK] System re-locked after 10 seconds")
 
-@app.route('/', methods=['GET'])
+def send_to_arduino(message):
+    if arduino and arduino.isOpen():
+        arduino.write(message.encode())
+        print(f"[SERIAL] Sent to Arduino: {message.strip()}")
+
+@app.route('/')
 def index():
     conn = mysql.connector.connect(
         host="localhost",
@@ -43,18 +56,15 @@ def toggle():
 
     if current == "Locked":
         set_status("Unlocked")
-        print("[STATUS] Unlocked via web")
+        send_to_arduino("UNLOCK\n")
 
-        # Cancel existing timer (if any), then start a new one
         if lock_timer and lock_timer.is_alive():
             lock_timer.cancel()
-
         lock_timer = threading.Timer(10.0, auto_relock)
         lock_timer.start()
-
     else:
         set_status("Locked")
-        print("[STATUS] Manually re-locked via web")
+        send_to_arduino("LOCK\n")
 
         if lock_timer and lock_timer.is_alive():
             lock_timer.cancel()
