@@ -43,19 +43,20 @@ void loop() {
   }
 
   if (Serial.available()) {
-    command = Serial.readStringUntil('\n');
-    command.trim();
+  command = Serial.readStringUntil('\n');
+  command.trim();
 
-    if (command == "ACCESS GRANTED") {
-      Serial.println("Unlocking door...");
-      lockServo.write(180); // 180° = Unlocked
-      delay(5000);        // Wait 10 seconds
-      lockServo.write(0);  // Back to locked
-      Serial.println("Auto-locking...");
-    } else if (command == "NO ACCESS") {
-      Serial.println("Access denied.");
-    }
-    command = "";
+  if (command == "ACCESS GRANTED" || command == "UNLOCK") {
+    Serial.println("Unlocking door...");
+    lockServo.write(90);
+    delay(10000);
+    lockServo.write(0);
+    Serial.println("Auto-locking...");
+  } else if (command == "NO ACCESS" || command == "LOCK") {
+    Serial.println("Locking door...");
+    lockServo.write(0);
+  }
+  command = "";
   }
 }
 
