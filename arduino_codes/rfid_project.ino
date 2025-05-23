@@ -10,6 +10,7 @@
 MFRC522 rfid(SS_PIN, RST_PIN);
 Servo lockServo;
 String command = "";
+int deniedAttempts = 0;
 
 void setup() {
   Serial.begin(9600);
@@ -20,7 +21,7 @@ void setup() {
   digitalWrite(BUZZER_PIN, LOW); // Make sure buzzer is off
 
   lockServo.attach(SERVO_PIN);
-  lockServo.write(0); // 0° = Locked position
+  lockServo.write(0); // Locked
 
   Serial.println("=================================");
   Serial.println(" Welcome to Vinny's Smart Room 🔐");
@@ -29,7 +30,7 @@ void setup() {
 }
 
 void loop() {
-  // RFID SCAN
+  // RFID scan
   if (rfid.PICC_IsNewCardPresent() && rfid.PICC_ReadCardSerial()) {
     String scannedUID = "";
     for (byte i = 0; i < rfid.uid.size; i++) {
@@ -43,28 +44,34 @@ void loop() {
     delay(2000);
   }
 
-  // SERIAL COMMANDS (from Python)
+  // Handle serial commands
   if (Serial.available()) {
     command = Serial.readStringUntil('\n');
     command.trim();
 
     if (command == "ACCESS GRANTED" || command == "UNLOCK") {
       Serial.println("Unlocking door...");
-      lockServo.write(90); // 90° = Unlocked
-      delay(10000);        // Wait 10 seconds
-      lockServo.write(0);  // Back to locked
+      lockServo.write(90);
+      delay(10000);
+      lockServo.write(0);
       Serial.println("Auto-locking...");
+      deniedAttempts = 0; // Reset on success
     } 
     else if (command == "NO ACCESS") {
       Serial.println("Access denied.");
-      // Buzz for intruder alert
-      digitalWrite(BUZZER_PIN, HIGH);
-      delay(2000);
-      digitalWrite(BUZZER_PIN, LOW);
-    }
+      deniedAttempts++;
+
+      if (deniedAttempts >= 3) {
+        Serial.println("⚠️  Intruder alert! 🚨");
+        digitalWrite(BUZZER_PIN, HIGH);
+        delay(2000);
+        digitalWrite(BUZZER_PIN, LOW);
+        deniedAttempts = 0;
+      }
+    } 
     else if (command == "LOCK") {
       Serial.println("Locking door...");
-      lockServo.write(0); // Lock position
+      lockServo.write(0);
     }
 
     command = "";
