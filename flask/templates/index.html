@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Smart Room Logs</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <h1>Smart Lock RFID Access Logs</h1>
+
+    <div class="center-box">
+        <div class="status-box">
+            Current Status: <span style="color:blue;">{{ status }}</span>
+        </div>
+
+        <form method="POST" action="/toggle">
+            {% if status == "Locked" %}
+                <button class="btn unlock" type="submit">Unlock</button>
+            {% else %}
+                <button class="btn lock" type="submit">Lock</button>
+            {% endif %}
+        </form>
+
+        <h2>Recent Logs</h2>
+        <table>
+            <tr>
+                <th>Timestamp</th>
+                <th>UID</th>
+                <th>Status</th>
+            </tr>
+            {% for log in logs %}
+            <tr>
+                <td>{{ log.timestamp }}</td>
+                <td>{{ log.uid }}</td>
+                <td>{{ log.status }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+</body>
+</html>
