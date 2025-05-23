@@ -32,7 +32,7 @@ def insert_log(uid, status):
         print("[STATUS] Door auto-relocked after 10 seconds")
 
 def set_status_file(new_status):
-    with open("lock_status.txt", "w") as f:
+    with open("../flask/lock_status.txt", "w") as f:
         f.write(new_status)
 
 while True:
