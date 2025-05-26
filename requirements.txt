@@ -1,0 +1,9 @@
+flask
+mysql-connector-python
+python-socketio
+pyserial
+sounddevice
+vosk
+flask-socketio
+flask-cors
+eventlet
