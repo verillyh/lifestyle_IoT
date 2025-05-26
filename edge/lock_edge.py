@@ -1,6 +1,9 @@
 import serial
 import socketio
 import requests
+import paho.mqtt.client as mqtt
+import threading
+
 
 # ---------- GLOBALS ---------- #
 DB_HOST = "localhost"
@@ -9,7 +12,10 @@ DB_PASS = "server"
 WEB_HOST = "http://localhost:5500"
 SERIAL_PORT = "COM6"
 BAUD_RATE = 9600
+MQTT_BROKER = "test.mosquitto.org"
+MQTT_TOPIC = "/swe30011/lifestyle/smart_devices"
 
+# TODO: RACE CONDITION BETWEEN THREADS FOR SIO
 
 # ---------- SETTING UP ---------- #
 # Serial connection
@@ -54,6 +60,10 @@ def main_loop():
 
         except Exception as e:
             print(f"[ERROR] {e}")
+        
+        finally:
+            ser.close()
+
 
 @sio.on("unlock_door")
 def unlock_door(unlock):
@@ -66,11 +76,38 @@ def unlock_door(unlock):
     ser.write(message.encode())
     print(f"[SERIAL] {message} command sent to Arduino")
 
+# On connect to MQTT server
+def on_connect(client, userdata, flags, rc):
+    print("[MQTT] Connected with result code " + str(rc))
+    client.subscribe(MQTT_TOPIC)
+
+
+# On message from MQTT server
+def on_message(client, userdata, msg):
+    command = msg.payload.decode().lower()
+    print(f"[MQTT] Received: {command}")
+
+    if "unlock door" in command:
+        sio.emit("unlock_door")
+
+    elif "turn off light" in command:
+        ser.write(b"LIGHT_OFF\n")
+        print("[ACTION] Light turned off by MQTT")
+
+
+def mqtt_thread():
+    client = mqtt.Client()
+    client.on_connect = on_connect
+    client.on_message = on_message
+    client.connect(MQTT_BROKER, 1883, 60)
+    client.loop_forever()
+
+
+
+
 if __name__ == "__main__":
     sio.connect(WEB_HOST)
-    try:
-        main_loop()
-    except KeyboardInterrupt:
-        print("Gracefully shutting down...")
-    finally:
-        ser.close()
+    # Start MQTT listener
+    threading.Thread(target=mqtt_thread, daemon=True).start()
+    threading.Thread(target=main_loop, daemon=True).start()
+    sio.wait()
