@@ -3,6 +3,8 @@ import mysql.connector
 import os
 import threading
 import serial
+import paho.mqtt.client as mqtt  # ADD THIS
+
 
 app = Flask(__name__)
 status_file = "lock_status.txt"
@@ -34,6 +36,40 @@ def send_to_arduino(message):
     if arduino and arduino.isOpen():
         arduino.write(message.encode())
         print(f"[SERIAL] Sent to Arduino: {message.strip()}")
+# MQTT Setup
+MQTT_BROKER = "test.mosquitto.org"
+MQTT_TOPIC = "/swe30011/lifestyle/smart_devices"
+
+def on_connect(client, userdata, flags, rc):
+    print("[MQTT] Connected with result code " + str(rc))
+    client.subscribe(MQTT_TOPIC)
+
+def on_message(client, userdata, msg):
+    command = msg.payload.decode().lower()
+    print(f"[MQTT] Received: {command}")
+
+    if "unlock door" in command:
+        set_status("Unlocked")
+        send_to_arduino("UNLOCK\n")
+        print("[ACTION] Door unlocked by MQTT")
+
+        global lock_timer
+        if lock_timer and lock_timer.is_alive():
+            lock_timer.cancel()
+        lock_timer = threading.Timer(10.0, auto_relock)
+        lock_timer.start()
+
+    elif "turn off light" in command:
+        send_to_arduino("LIGHT_OFF\n")  # Arduino must support this
+        print("[ACTION] Light turned off by MQTT")
+
+def mqtt_listener():
+    client = mqtt.Client()
+    client.on_connect = on_connect
+    client.on_message = on_message
+    client.connect(MQTT_BROKER, 1883, 60)
+    client.loop_forever()
+
 
 @app.route('/')
 def index():
@@ -72,4 +108,6 @@ def toggle():
     return redirect('/')
 
 if __name__ == '__main__':
+    threading.Thread(target=mqtt_listener, daemon=True).start()
     app.run(debug=True)
+
