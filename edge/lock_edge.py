@@ -6,10 +6,7 @@ import threading
 
 
 # ---------- GLOBALS ---------- #
-DB_HOST = "localhost"
-DB_USER = "server"
-DB_PASS = "server"
-WEB_HOST = "http://localhost:5500"
+WEB_HOST = "http://203.101.225.4:5500"
 SERIAL_PORT = "COM6"
 BAUD_RATE = 9600
 MQTT_BROKER = "test.mosquitto.org"

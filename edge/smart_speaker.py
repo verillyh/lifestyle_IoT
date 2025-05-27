@@ -6,18 +6,27 @@ import json
 import os
 import openmeteo_requests
 import requests_cache
+import serial
 from retry_requests import retry
 from datetime import datetime
 
 
-commands = [
-    "what's the weather",
-    "turn on the light",
-    "turn off the light",
-    "dim the light",
-    "unlock the door"
+light_commands = [
+    "lights on\n",
+    "lights off\n",
+    "motion lights\n",
+    "happy light\n",
+    "sad  light\n"
+    "angry light\n",
+    "romantic light\n",
+    "party light\n",
+    "relax light\n",
+    "love light\n",
+    "morning light\n",
+    "afternoon light\n",
+    "evening light\n",
+    "night light\n"
 ]
-
 remote_commands = [
     "unlock door"
 ]
@@ -49,7 +58,8 @@ params = {
 	"current": ["temperature_2m", "apparent_temperature"],
     "forecast_days": 1
 }
-
+# Serial
+ser = serial.Serial("/dev/ttyACM0", 9600) 
 
 
 
@@ -96,15 +106,19 @@ try:
                 # rec.Result() returns json, so need to preprocess it
                 command = json.loads(rec.Result()).get("text")
                 print(f"Command captured: {command}")
-
+        
                 # Handle voice commands
                 if command in remote_commands:
                     client.publish(MQTT_TOPIC, command)
+                    print(command, " published with MQTT")
+                # Handle light commands
+                elif command in light_commands:
+                    ser.write(command.encode())
+                    print(command, " sent to Arduino")
+                # Ask for weather
                 elif command == "what's the weather":
                     text = get_weather()
-                    # TODO: Make this output to speaker on RPi
                     os.system(f"echo '{text}' | piper --model {os.path.join('..', 'model', PIPER_MODEL)}.onnx -c {os.path.join('..', 'model', PIPER_MODEL)}.onnx.json | aplay -r 22050 -f S16_LE -t raw -")    
-                    print("File generated")
                 elif command == "stop":
                     break
 
