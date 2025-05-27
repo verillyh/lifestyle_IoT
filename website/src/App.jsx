@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import Logs from "./components/Logs"
 import './index.css'
 
-const WEB_HOST = "http://localhost:5500"
+const WEB_HOST = "http://203.101.225.4:5500"
 const sio = io(WEB_HOST)
 
 function App() {
