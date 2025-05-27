@@ -7,3 +7,8 @@ vosk
 flask-socketio
 flask-cors
 eventlet
+openmeteo-requests
+requests-cache 
+retry-requests 
+numpy
+pandas
