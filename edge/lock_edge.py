@@ -25,7 +25,7 @@ sio = socketio.SimpleClient()
 # Temporary UID variable
 uid = None
 # TEMPORARY -> HAVE A TABLE IN DATABASE FOR THIS SOON
-authorized_uids = []
+AUTHORIZED_UIDS = ["43705EF5", "D3C77330"]
 
 
 def main_loop():
@@ -46,7 +46,7 @@ def main_loop():
                 }
                 
                 # Append access state respectively
-                if uid in authorized_uids:
+                if uid in AUTHORIZED_UIDS:
                     data["access"] = "Granted"
                 else:
                     data["access"] = "Denied"
