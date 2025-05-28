@@ -7,18 +7,21 @@ import threading
 
 # ---------- GLOBALS ---------- #
 WEB_HOST = "http://203.101.225.4:5500"
-SERIAL_PORT = "COM6"
+SERIAL_PORT = "COM7"
 BAUD_RATE = 9600
 MQTT_BROKER = "test.mosquitto.org"
 MQTT_TOPIC = "/swe30011/lifestyle/smart_devices"
 
 # TODO: RACE CONDITION BETWEEN THREADS FOR SIO
+# TODO: SHUTDOWN MQTT ON KEYBOARDINTERRUPT
 
 # ---------- SETTING UP ---------- #
 # Serial connection
 ser = serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=1)
 # SocketIo
-sio = socketio.SimpleClient()
+sio = socketio.Client()
+# MQTT Client
+client = mqtt.Client()
 # Temporary UID variable
 uid = None
 # TEMPORARY -> HAVE A TABLE IN DATABASE FOR THIS SOON
@@ -88,12 +91,11 @@ def on_message(client, userdata, msg):
         sio.emit("unlock_door")
 
     elif "turn off light" in command:
-        ser.write(b"LIGHT_OFF\n")
+        # ser.write(b"LIGHT_OFF\n")
         print("[ACTION] Light turned off by MQTT")
 
 
 def mqtt_thread():
-    client = mqtt.Client()
     client.on_connect = on_connect
     client.on_message = on_message
     client.connect(MQTT_BROKER, 1883, 60)

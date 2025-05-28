@@ -12,20 +12,20 @@ from datetime import datetime
 
 
 light_commands = [
-    "lights on\n",
-    "lights off\n",
-    "motion lights\n",
-    "happy light\n",
-    "sad  light\n"
-    "angry light\n",
-    "romantic light\n",
-    "party light\n",
-    "relax light\n",
-    "love light\n",
-    "morning light\n",
-    "afternoon light\n",
-    "evening light\n",
-    "night light\n"
+    "lights on",
+    "lights off",
+    "motion lights",
+    "happy light",
+    "sad light"
+    "angry light",
+    "romantic light",
+    "party light",
+    "relax light",
+    "love light",
+    "morning light",
+    "afternoon light",
+    "evening light",
+    "night light"
 ]
 remote_commands = [
     "unlock door"
