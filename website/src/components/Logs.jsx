@@ -4,7 +4,7 @@ function Logs( { refreshData }) {
     const [logs, setLogs] = useState([])
 
     useEffect(() => {
-        fetch("http://localhost:5500/logs")
+        fetch("http://203.101.225.4:5500/logs")
             .then(response => 
                 response.json()
             )
