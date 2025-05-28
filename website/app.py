@@ -56,6 +56,8 @@ def insert_log():
     
     uid = data.get("uid")
     access = data.get("access")
+    if access == "Granted":
+        sio.emit("unlock_door", True)
     try:
         cursor.execute("""
             INSERT INTO lock_logs(uid, status) VALUES(%s, %s)
