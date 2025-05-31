@@ -5,6 +5,7 @@ import queue
 import json
 import os
 import openmeteo_requests
+import requests
 import requests_cache
 import serial
 from retry_requests import retry
@@ -32,6 +33,8 @@ remote_commands = [
 ]
 
 # ---------- SETUP ---------- #
+# Web host
+WEB_HOST = "http://203.101.225.4:5500"
 # Data queue
 q = queue.Queue()
 # Vosk model - STT
@@ -59,7 +62,7 @@ params = {
     "forecast_days": 1
 }
 # Serial
-ser = serial.Serial("/dev/ttyACM0", 9600) 
+ser = serial.Serial("/d ev/ttyACM0", 9600) 
 
 
 
@@ -84,12 +87,26 @@ def get_weather():
 
     return out_text
 
+def tts(text):
+    model_path = os.path.join('..', 'model', PIPER_MODEL)
+    os.system(f"echo '{text}' | piper --model {model_path}.onnx -c {model_path}.onnx.json | aplay -r 22050 -f S16_LE -t raw -")    
+
+def latest_log_to_text(data):
+    timestamp = data["logs"][0]["timestamp"]
+    dt = datetime.fromisoformat(timestamp)
+    formatted = dt.strftime("%A %d %B %Y at %I %M %p ")
+    text = f"The latest lock log was {formatted}"
+    return text
+
+
 def on_connect(client, userdata, flags, rc):
     print("Connected to broker with result code: ", str(rc))
 
 
 def callback(indata, frames, time, status):
     q.put(bytes(indata))
+
+
 
 try:
     client.on_connect = on_connect
@@ -115,10 +132,15 @@ try:
                 elif command in light_commands:
                     ser.write(command.encode())
                     print(command, " sent to Arduino")
+                elif command == "when was the latest log":
+                    r = requests.get(WEB_HOST + "/logs", params={"limit_num": 1})
+                    data = r.json()
+                    text = latest_log_to_text(data)
+                    tts(text)
                 # Ask for weather
                 elif command == "what's the weather":
                     text = get_weather()
-                    os.system(f"echo '{text}' | piper --model {os.path.join('..', 'model', PIPER_MODEL)}.onnx -c {os.path.join('..', 'model', PIPER_MODEL)}.onnx.json | aplay -r 22050 -f S16_LE -t raw -")    
+                    tts(text)
                 elif command == "stop":
                     break
 

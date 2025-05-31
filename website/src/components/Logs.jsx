@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react"
 
-function Logs( { refreshData }) {
+function Logs( { WEB_HOST, refreshData }) {
     const [logs, setLogs] = useState([])
 
     useEffect(() => {
-        fetch("http://203.101.225.4:5500/logs")
+        fetch(`${WEB_HOST}/logs`)
             .then(response => 
                 response.json()
             )

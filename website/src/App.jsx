@@ -44,7 +44,7 @@ function App() {
         <section className='bg-white rounded px-12 flex flex-col items-center p-3'>
         <p className='text-lg'>Current status: <span className={unlocked ? "text-blue-800 font-bold" : "text-red-800 font-bold"}>{stateText}</span></p>
           <button onClick={toggle} type="submit" className='rounded bg-green-500 hover:bg-green-400 focus-visible:outline-2  my-3 px-4 py-1 text-white flex justify-center items-center'>Unlock</button>
-          <Logs refreshData={refreshData}/>
+          <Logs refreshData={{WEB_HOST, refreshData}}/>
         </section>
       </main>
     </>

@@ -14,12 +14,15 @@ def initialize_db(cursor, db):
     db.commit()
 
 def connect(host, user, password):
-    db = mysql.connector.connect(
-        host=host,
-        user=user,
-        password=password,
-    )
-    cursor = db.cursor(dictionary=True)
-    initialize_db(cursor, db)
+    try:
+        db = mysql.connector.connect(
+            host=host,
+            user=user,
+            password=password,
+        )
+        cursor = db.cursor(dictionary=True)
+        initialize_db(cursor, db)
 
-    return db, cursor
+        return db, cursor
+    except Exception as e:
+        print("Failed to connect to database\n", e)
