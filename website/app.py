@@ -38,6 +38,7 @@ def serialize_logs(logs):
     
     return logs_serialized
 
+
 @app.route('/logs')
 def index():
     # TODO: FIX THIS
@@ -55,6 +56,8 @@ def insert_log():
     
     uid = data.get("uid")
     access = data.get("access")
+    if access == "Granted":
+        sio.emit("unlock_door", True)
     try:
         cursor.execute("""
             INSERT INTO lock_logs(uid, status) VALUES(%s, %s)
@@ -80,4 +83,4 @@ def toggle():
 
 if __name__ == '__main__':
     print("Starting server...")
-    sio.run(app, host='0.0.0.0', port=5500, debug=True)
+    sio.run(app, host='203.101.225.4', port=5500, debug=True)
