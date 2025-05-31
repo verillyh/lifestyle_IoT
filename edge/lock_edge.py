@@ -61,8 +61,7 @@ def main_loop():
         except Exception as e:
             print(f"[ERROR] {e}")
         
-        finally:
-            ser.close()
+        
 
 
 @sio.on("unlock_door")
@@ -105,8 +104,16 @@ def mqtt_thread():
 
 
 if __name__ == "__main__":
-    sio.connect(WEB_HOST)
-    # Start MQTT listener
-    threading.Thread(target=mqtt_thread, daemon=True).start()
-    threading.Thread(target=main_loop, daemon=True).start()
-    sio.wait()
+    try:
+        sio.connect(WEB_HOST)
+        # Start MQTT listener
+        threading.Thread(target=mqtt_thread, daemon=True).start()
+        threading.Thread(target=main_loop, daemon=True).start()
+        sio.wait()
+    except KeyboardInterrupt:
+        print("Shutting down...")
+    finally:
+        if ser.is_open:
+            ser.close()
+            print("Serial port closed.")
+        
