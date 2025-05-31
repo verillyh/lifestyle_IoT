@@ -8,23 +8,24 @@ const sio = io(WEB_HOST)
 
 function App() {
   const [unlocked, setUnlocked] = useState(false)
-  const [refreshData, setRefreshData] = useState(false)
+  const [refreshData, setRefreshData] = useState(Date.now())
   const [stateText, setStateText] = useState("Locked")
 
   useEffect(() => {
     // On unlock door event
     sio.on("unlock_door", unlock => {
-      console.log(unlock)
       // Set unlock variable
       setUnlocked(unlock)
 
-      setRefreshData(!refreshData)
       if (unlock) {
         setStateText("Unlocked")
       }
       else {
         setStateText("Locked")
       }
+    })
+    sio.on("refresh_data", () => {
+      setRefreshData(Date.now())
     })
     sio.on("update_logs", data => {
       console.log(data)

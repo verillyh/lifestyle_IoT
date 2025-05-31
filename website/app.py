@@ -82,7 +82,9 @@ def insert_log():
 
     # If granted, then emit unlock door event
     if access == "Granted":
-        sio.emit("unlock_door", True)
+        toggle()
+    else:
+        sio.emit("refresh_data")
 
     # Try to log into server 
     try:
@@ -90,8 +92,10 @@ def insert_log():
             INSERT INTO lock_logs(uid, status) VALUES(%s, %s)
         """, (uid, access))
         db.commit()
+        return jsonify({"message": "Successfully inserted log"}), 201 
     except Exception as e:
         print("Error inserting into log: ", e)
+        return jsonify({"error": "Can't insert log"}), 500
 
 @sio.on("unlock_door")
 def toggle():
@@ -105,11 +109,13 @@ def toggle():
         
         # Emit unlock event
         sio.emit("unlock_door", True)
+        sio.emit("refresh_data")
         # Wait 5s before locking
         eventlet.sleep(5)
 
         # Emit lock event and set flag
         sio.emit("unlock_door", False)
+        sio.emit("refresh_data") 
         door_unlocked = False
 
 if __name__ == '__main__':
