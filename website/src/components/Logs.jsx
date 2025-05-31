@@ -4,6 +4,7 @@ function Logs( { WEB_HOST, refreshData }) {
     const [logs, setLogs] = useState([])
 
     useEffect(() => {
+	console.log(WEB_HOST)
         fetch(`${WEB_HOST}/logs`)
             .then(response => 
                 response.json()

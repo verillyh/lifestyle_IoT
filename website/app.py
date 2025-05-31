@@ -58,7 +58,7 @@ def index():
         return jsonify(error="Invalid limit_num parameter. Please provide only numbers between 1 and 15"), 400
     
     # Retrieve logs from database
-    cursor.execute("SELECT * FROM lock_logs ORDER BY timestamp DESC LIMIT %s", limit_num)   
+    cursor.execute("SELECT * FROM lock_logs ORDER BY timestamp DESC LIMIT %s", (limit_num,)) 
 
     # Fetch all logs
     logs = cursor.fetchall()
