@@ -87,7 +87,7 @@ def on_message(client, userdata, msg):
     print(f"[MQTT] Received: {command}")
 
     if "unlock door" in command:
-    unlock_door(True)        # ✅ Directly triggers the function in the same file
+        unlock_door(True)        # ✅ Directly triggers the function in the same file
 
     elif "turn off light" in command:
         # ser.write(b"LIGHT_OFF\n")
