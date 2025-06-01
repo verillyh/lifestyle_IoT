@@ -8,23 +8,24 @@ const sio = io(WEB_HOST)
 
 function App() {
   const [unlocked, setUnlocked] = useState(false)
-  const [refreshData, setRefreshData] = useState(false)
+  const [refreshData, setRefreshData] = useState(Date.now())
   const [stateText, setStateText] = useState("Locked")
 
   useEffect(() => {
     // On unlock door event
     sio.on("unlock_door", unlock => {
-      console.log(unlock)
       // Set unlock variable
       setUnlocked(unlock)
 
-      setRefreshData(!refreshData)
       if (unlock) {
         setStateText("Unlocked")
       }
       else {
         setStateText("Locked")
       }
+    })
+    sio.on("refresh_data", () => {
+      setRefreshData(Date.now())
     })
     sio.on("update_logs", data => {
       console.log(data)
@@ -44,7 +45,7 @@ function App() {
         <section className='bg-white rounded px-12 flex flex-col items-center p-3'>
         <p className='text-lg'>Current status: <span className={unlocked ? "text-blue-800 font-bold" : "text-red-800 font-bold"}>{stateText}</span></p>
           <button onClick={toggle} type="submit" className='rounded bg-green-500 hover:bg-green-400 focus-visible:outline-2  my-3 px-4 py-1 text-white flex justify-center items-center'>Unlock</button>
-          <Logs refreshData={{WEB_HOST, refreshData}}/>
+          <Logs refreshData={refreshData} WEB_HOST={WEB_HOST}/>
         </section>
       </main>
     </>
