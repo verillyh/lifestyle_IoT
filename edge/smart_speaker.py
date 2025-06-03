@@ -141,7 +141,7 @@ try:
                     print(command, " published with MQTT")
                 # Handle light commands
                 elif command in light_commands:
-                    ser.write(command.encode())
+                    ser.write(f"{command}\n".encode())
                     print(command, " sent to Arduino")
                 elif command == "when was the latest log":
                     r = requests.get(WEB_HOST + "/logs", params={"limit_num": 1})
