@@ -66,7 +66,7 @@ def main_loop():
 
 @sio.on("unlock_door")
 def unlock_door(unlock):
-   message = None
+    message = None
     if unlock:
         message = "UNLOCK\n"
         # ✅ Publish to MQTT when unlocking
