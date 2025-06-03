@@ -10,6 +10,7 @@ import requests_cache
 import serial
 from retry_requests import retry
 from datetime import datetime
+import threading
 
 
 light_commands = [
@@ -62,7 +63,7 @@ params = {
     "forecast_days": 1
 }
 # Serial
-ser = serial.Serial("/d ev/ttyACM0", 9600) 
+ser = serial.Serial("/dev/rfcomm0", 9600) 
 
 
 
@@ -102,6 +103,18 @@ def latest_log_to_text(data):
 def on_connect(client, userdata, flags, rc):
     print("Connected to broker with result code: ", str(rc))
 
+def on_message(client,  userdata, msg):
+    msg = msg.payload.decode().lower()
+    if msg == "door unlocked":
+        print("Turning on lights...")
+        ser.write("lights on")  
+
+def mqtt_func():
+    client.on_connect = on_connect
+    client.on_message = on_message
+    client.connect(MQTT_BROKER, MQTT_PORT)
+    client.subscribe(MQTT_TOPIC)
+    client.loop_forever()
 
 def callback(indata, frames, time, status):
     q.put(bytes(indata))
@@ -109,9 +122,7 @@ def callback(indata, frames, time, status):
 
 
 try:
-    client.on_connect = on_connect
-    client.connect(MQTT_BROKER, MQTT_PORT, 60)
-
+    threading.Thread(target=mqtt_func, daemon=True).start()     
     with sd.RawInputStream(device=1, channels=1, blocksize=8000, callback=callback, samplerate=SAMPLE_RATE, dtype="int16"):
         # Get TTS model
         rec = KaldiRecognizer(model, SAMPLE_RATE)

@@ -6,6 +6,11 @@ This repo houses the code for an IoT solution containing:
 
 For setting up, make sure you run the following commands
 
+Go to your Raspberry Pi for the smart speaker, and install the following bluetooth package
+```
+sudo apt install bluetooth bluez-utils blueman
+```
+
 ```
 pip install -r requirements.txt
 cd website
