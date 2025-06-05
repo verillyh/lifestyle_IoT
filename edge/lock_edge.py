@@ -69,7 +69,6 @@ def unlock_door(unlock):
     message = None
     if unlock:
         message = "UNLOCK\n"
-        # ✅ Publish to MQTT when unlocking
         client.publish(MQTT_TOPIC, "door unlocked")
     else:
         message = "LOCK\n"
@@ -89,7 +88,7 @@ def on_message(client, userdata, msg):
     print(f"[MQTT] Received: {command}")
 
     if "unlock door" in command:
-        sio.emit("unlock_door")        # ✅ Directly triggers the function in the same file
+        sio.emit("unlock_door")
 
     elif "turn off light" in command:
         # ser.write(b"LIGHT_OFF\n")
