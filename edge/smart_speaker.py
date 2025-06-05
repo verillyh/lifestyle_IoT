@@ -30,7 +30,7 @@ light_commands = [
     "night light"
 ]
 remote_commands = [
-    "unlock door"
+    "open door"
 ]
 
 # ---------- SETUP ---------- #
@@ -107,7 +107,7 @@ def on_message(client,  userdata, msg):
     msg = msg.payload.decode().lower()
     if msg == "door unlocked":
         print("Turning on lights...")
-        ser.write("lights on")  
+        ser.write("lights on\n".encode())  
 
 def mqtt_func():
     client.on_connect = on_connect
@@ -123,7 +123,7 @@ def callback(indata, frames, time, status):
 
 try:
     threading.Thread(target=mqtt_func, daemon=True).start()     
-    with sd.RawInputStream(device=1, channels=1, blocksize=8000, callback=callback, samplerate=SAMPLE_RATE, dtype="int16"):
+    with sd.RawInputStream(device=12, channels=1, blocksize=8000, callback=callback, samplerate=SAMPLE_RATE, dtype="int16"):
         # Get TTS model
         rec = KaldiRecognizer(model, SAMPLE_RATE)
         print("Listening...")
@@ -137,8 +137,8 @@ try:
         
                 # Handle voice commands
                 if command in remote_commands:
-                    client.publish(MQTT_TOPIC, command)
-                    print(command, " published with MQTT")
+                    client.publish(MQTT_TOPIC, "unlock door")
+                    print("unlock door", " published with MQTT")
                 # Handle light commands
                 elif command in light_commands:
                     ser.write(f"{command}\n".encode())
